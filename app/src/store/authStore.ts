@@ -69,7 +69,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user, token, loading: false });
 
       Alert.alert("Welcome 🎉", "Login successful!");
-      router.replace("(tabs)/home");
+      router.replace("/(tabs)/home");
 
     } catch (error: any) {
       set({
@@ -83,29 +83,23 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   // ============================
   // LOAD USER (AUTO-LOGIN)
-  // ============================
- loadUser: async () => {
-  try {
-    const token = await AsyncStorage.getItem("token");
+  loadUser: async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
 
-    if (!token) return;
+      if (!token) return;
 
-    // set global axios token
-    api.defaults.headers.common["authorization"] = "Bearer " + token;
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    // send token directly (important!)
-    const res = await api.get("/auth/me", {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    });
-  
-    set({ user: res.data, token });
+      const res = await api.get("/auth/me");
 
-  } catch (error) {
-    console.log("Auto-login failed");
-  }
-},
+      set({ user: res.data, token });
+
+    } catch (error) {
+      console.log("Auto-login failed");
+    }
+  },
+
 
   // ============================
   // LOGOUT

@@ -4,7 +4,7 @@
     "slug": "mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/slo.png",
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -24,7 +24,9 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/slo.png"
+      
+      
     },
     "plugins": [
       "expo-router",
@@ -48,8 +50,22 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "f5a95bb7-335e-4bbd-9e98-fad47ee323b5"
+        "projectId": "c11c5a94-f89d-4108-9fd0-7c5ddd05a824"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c11c5a94-f89d-4108-9fd0-7c5ddd05a824"
     }
+  },
+  "runtimeVersion": {
+    "policy": "appVersion"
+  },
+  "updates": {
+    "enabled": true,
+    "fallbackToCacheTimeout": 0,
+    "checkAutomatically": "ON_LOAD"
   }
 }

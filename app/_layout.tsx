@@ -1,9 +1,12 @@
 import SafeScreen from "@/components/SafeScreen";
 import { Stack } from "expo-router";
+import { StatusBar } from "react-native";
 import "react-native-reanimated";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   return (
+<SafeAreaProvider>
     <SafeScreen>
     <Stack screenOptions={{ headerShown: false }}>
 
@@ -18,5 +21,7 @@ export default function RootLayout() {
 
     </Stack>
     </SafeScreen>
+     </SafeAreaProvider>
+
   );
 }

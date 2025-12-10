@@ -1,69 +1,59 @@
 import { create } from "zustand";
-import axios from "axios";
 import { Product } from "../types/product";
+import { api } from "../utils/api";
 
 interface ProductStore {
   products: Product[];
   searchQuery: string;
+  currentProduct: Product | null; // Added to store single product
+  loading: boolean; // Added loading state
+  error: string | null; // Added error state
 
   getProducts: () => Promise<void>;
   setProducts: (data: Product[]) => void;
-  getProductById: (id: string | number) => Product | undefined;
-  addProduct: (product: Product) => void;
-  updateProduct: (id: number, updated: Partial<Product>) => void;
-  deleteProduct: (id: number) => void;
-
-  setSearchQuery: (query: string) => void;
-  filteredProducts: () => Product[];
+  getProductById: (id: string) => Promise<Product | void>;
+  setSearchQuery: (query: string) => void; // Added missing function
 }
 
 export const useProductStore = create<ProductStore>((set, get) => ({
   products: [],
   searchQuery: "",
+  currentProduct: null,
+  loading: false,
+  error: null,
 
-  // Fetch products
+  // Fetch all products
   getProducts: async () => {
+    set({ loading: true, error: null });
     try {
-      const { data } = await axios.get("https://fakestoreapi.com/products");
-      set({ products: data });
+      const { data } = await api.get("/products");
+      set({ products: data, loading: false });
     } catch (error) {
-      console.log("Error fetching products:", error);
+      console.error("Error fetching products:", error);
+      set({
+        error: "Failed to fetch products",
+        loading: false
+      });
     }
   },
 
   setProducts: (data) => set({ products: data }),
 
-  getProductById: (id) =>
-    get().products.find((p) => p.id === Number(id)),
-
-  addProduct: (product) =>
-    set((state) => ({ products: [...state.products, product] })),
-
-  updateProduct: (id, updated) =>
-    set((state) => ({
-      products: state.products.map((p) =>
-        p.id === id ? { ...p, ...updated } : p
-      ),
-    })),
-
-  deleteProduct: (id) =>
-    set((state) => ({
-      products: state.products.filter((p) => p.id !== id),
-    })),
-
-  // ---------- SEARCH ----------
-  setSearchQuery: (query) => set({ searchQuery: query }),
-
-  filteredProducts: () => {
-    const { products, searchQuery } = get();
-
-    if (!searchQuery.trim()) return products;
-
-    const q = searchQuery.toLowerCase();
-
-    return products.filter((p) =>
-      p.title.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q)
-    );
+  // Fetch single product by ID
+  getProductById: async (id: string) => {
+    set({ loading: true, error: null });
+    try {
+      const { data } = await api.get(`/products/${id}`);
+      set({ currentProduct: data, loading: false });
+      return data; // Return the product data
+    } catch (error) {
+      console.error(`Error fetching product ${id}:`, error);
+      set({
+        error: "Failed to fetch product",
+        loading: false
+      });
+    }
   },
+
+  setSearchQuery: (query: string) => set({ searchQuery: query }),
 }));

@@ -9,8 +9,6 @@ export default function Login() {
 
   const login = useAuthStore((s) => s.login);
   const loading = useAuthStore((s) => s.loading);
-  const error = useAuthStore((s) => s.error);
-
   const handleSubmit = async () => {
     if (!email || !password) {
       alert("Please enter email & password");
@@ -45,6 +43,10 @@ export default function Login() {
                 placeholder="Email Address"
                 value={email}
                 onChangeText={setEmail}
+                keyboardType="email-address"
+                autoComplete="email"
+                returnKeyType="next" 
+               
               />
 
               <TextInput
@@ -56,10 +58,7 @@ export default function Login() {
               />
             </View>
 
-            {error ? (
-              <Text style={styles.errorText}>{error}</Text>
-            ) : null}
-
+            
             <TouchableOpacity
               style={[styles.signupButton, loading && { opacity: 0.6 }]}
               onPress={handleSubmit}

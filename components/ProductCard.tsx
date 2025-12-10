@@ -1,36 +1,41 @@
 import { useCartStore } from "@/app/src/store/cartStore";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { View, Text, Image, Pressable, StyleSheet, TouchableOpacity } from "react-native";
 
-export default function ProductCard({ product }: { product: { image: string; title: string; price: number; id:any } }) {
+export default function ProductCard({ product }: { product: { image: string; title: string; price: number; _id: any } }) {
+  const { addToCart } = useCartStore();
+  const router = useRouter();
 
-    const {addToCart} = useCartStore();
+  const handleCardPress = () => {
+    router.push({
+      pathname: "/product/[id]",
+      params: { id: product._id },
+    });
+  };
+
   return (
-    <Link
-  href={{
-    pathname: "/product/[id]",
-    params: { id: product.id }, // pass the product id
-  }}
-  asChild
->
-    <Pressable style={styles.card}>
-      <Image source={{ uri: product.image}} style={styles.image} />
-
+    <Pressable 
+      style={styles.card} 
+      onPress={handleCardPress}
+    >
+      <Image source={{ uri: product.image }} style={styles.image} />
       <Text style={styles.title}>{product.title}</Text>
-        <View style={styles.priceAndAddToCartContainer}>
-       <Text style={styles.price}>${product.price}</Text>
-       <TouchableOpacity 
-       onPress={()=>addToCart(product.id, 1)}
-       
-       >
-            <Text style={{ color: 'blue', marginTop: 8 }}>Add to Cart</Text>
-       </TouchableOpacity>
-
-        </View>
+      <View style={styles.priceAndAddToCartContainer}>
+        <Text style={styles.price}>${product.price}</Text>
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            addToCart(product._id, 1);
+          }}
+          style={styles.addToCartButton}
+        >
+          <Text style={styles.addToCartText}>Add to Cart</Text>
+        </TouchableOpacity>
+      </View>
     </Pressable>
-    </Link>
   );
 }
+
 
 const styles = StyleSheet.create({
   card: {
@@ -42,20 +47,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 4,
+    marginBottom: 16,
   },
   image: {
     width: "100%",
-    height: 100,
-    borderRadius: 10,
+    height: 120,
+    borderRadius: 8,
+    marginBottom: 8,
   },
   title: {
-    marginTop: 8,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "600",
+    marginBottom: 4,
+    flexShrink: 1,
   },
   price: {
-    marginTop: 4,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: "#0A8A34",
   },
@@ -64,5 +71,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  addToCartButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#007AFF",
+    borderRadius: 6,
+    minHeight: 36, // Minimum touch target size
+    justifyContent: "center",
+  },
+  addToCartText: {
+    color: "#FFF",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

@@ -1,20 +1,59 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useProductStore } from "../src/store/productStore";
 import { useCartStore } from "../src/store/cartStore";
+import { useEffect, useState } from "react";
+import { Product } from "../src/types/product";
 
 export default function ProductDetails() {
     const { id } = useLocalSearchParams(); 
-    const { products, getProductById } = useProductStore();
-     const {addToCart} = useCartStore();
-     const router = useRouter();
+    const { products, getProductById, currentProduct, loading } = useProductStore();
+    const { addToCart } = useCartStore();
+    const router = useRouter();
+    const [localProduct, setLocalProduct] = useState<Product | null>(null); // Add explicit type
 
-    const product = getProductById(id)
-    console.log('====================================');
-    console.log(product);
-    console.log('====================================');
+    useEffect(() => {
+        // Fetch product if not already in store
+        if (id) {
+            const fetchProduct = async () => {
+                const productData = await getProductById(id as string);
+                if (productData) {
+                    setLocalProduct(productData as Product); // Cast to Product type
+                }
+            };
+            fetchProduct();
+        }
+    }, [id]);
 
-    if (!product) {
+    // First check if product exists in products array
+    useEffect(() => {
+        if (products.length > 0 && id) {
+            const foundProduct = products.find(p => p._id === id || p.id === id);
+            if (foundProduct) {
+                setLocalProduct(foundProduct);
+            }
+        }
+    }, [products, id]);
+
+    // Use currentProduct if available
+    useEffect(() => {
+        if (currentProduct) {
+            setLocalProduct(currentProduct);
+        }
+    }, [currentProduct]);
+
+    console.log('Product ID:', id);
+    console.log('Current Product:', localProduct);
+
+    if (loading) {
+        return (
+            <View style={styles.center}>
+                <ActivityIndicator size="large" color="#3A8DFD" />
+            </View>
+        );
+    }
+
+    if (!localProduct) {
         return (
             <View style={styles.center}>
                 <Text>Product not found!</Text>
@@ -24,32 +63,36 @@ export default function ProductDetails() {
 
     return (
         <ScrollView style={styles.container}>
-            <Image source={{ uri: product.image}} style={styles.image} />
+            <Image source={{ uri: localProduct.image }} style={styles.image} />
 
             <View style={styles.infoBox}>
-                <Text style={styles.title}>{product.title}</Text>
-                <Text style={styles.price}>Birr {product.price}</Text>
+                <Text style={styles.title}>{localProduct.title}</Text>
+                <Text style={styles.price}>Birr {localProduct.price}</Text>
 
                 <Text style={styles.sectionTitle}>Description</Text>
-                <Text style={styles.description}>{product.description}</Text>
+                
+                <Text style={styles.description}>{localProduct.description}</Text>
 
                 <TouchableOpacity 
-                onPress={() => addToCart(product.id, 1)}
-                
-                style={styles.cartBtn}>
+                    onPress={() => addToCart(localProduct._id, 1)}
+                    style={styles.cartBtn}
+                >
                     <Text style={styles.cartBtnAndProceedText}>Add to Cart</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.proceedToCheckOut} 
-                onPress={() => router.push('/(tabs)/cart')} 
+                
+                <TouchableOpacity 
+                    style={styles.proceedToCheckOut} 
+                    onPress={() => router.push('/(tabs)/cart')} 
                 >
                     <Text style={styles.cartBtnAndProceedText}>Proceed to Checkout</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.proceedToCheckOut} 
-                onPress={() => router.push('/(tabs)/home')} 
+                
+                <TouchableOpacity 
+                    style={styles.proceedToCheckOut} 
+                    onPress={() => router.push('/(tabs)/home')} 
                 >
                     <Text style={styles.cartBtnAndProceedText}>Add more Products</Text>
                 </TouchableOpacity>
-
             </View>
         </ScrollView>
     );
@@ -58,19 +101,21 @@ export default function ProductDetails() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff"
+        backgroundColor: "#fff",
+       paddingTop:30
     },
     center: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center"
     },
-
     image: {
-        width: "100%",
+        width: "90%",
         height: 300,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
+        borderRadius:20,
+        alignItems:"center",
+        alignSelf:"center"
+
     },
     infoBox: {
         padding: 20

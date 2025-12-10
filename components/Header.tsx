@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     gap: 12,
     position: "sticky",
     top: 0,
-    zIndex: 1000,
+    zIndex: 1000
   },
   searchBox: {
     flex: 1,

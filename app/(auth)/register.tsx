@@ -10,7 +10,6 @@ export default function Register() {
 
   const register = useAuthStore((s) => s.register);
   const isLoading = useAuthStore((s) => s.loading);
-  const error = useAuthStore((s) => s.error);
 
   const handleSubmit = async () => {
     if (!username || !email || !password) {
@@ -64,9 +63,6 @@ export default function Register() {
               />
             </View>
 
-            {error ? (
-              <Text style={styles.errorText}>{error}</Text>
-            ) : null}
 
             <TouchableOpacity style={styles.signupButton} onPress={handleSubmit} disabled={isLoading}>
               {isLoading ? (
